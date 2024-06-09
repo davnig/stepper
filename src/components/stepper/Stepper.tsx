@@ -98,7 +98,7 @@ export function StepperHeader<V>() {
 export type StepperFooterProps<V> = StepperEvents<V>
 
 export function StepperFooter<V>({ onNext, onBack, ...props }: StepperFooterProps<V>) {
-    const { value, next, back } = useStepperContext<V>()
+    const { value, next, back, step, steps } = useStepperContext<V>()
 
     return (
         <div className='flex items-center justify-between'>
@@ -109,7 +109,7 @@ export function StepperFooter<V>({ onNext, onBack, ...props }: StepperFooterProp
                     onBack?.(value)
                 }}
             >
-                Back
+                {step === 0 ? 'Cancel' : 'Back'}
             </Button>
             <Button
                 onClick={() => {
@@ -117,7 +117,7 @@ export function StepperFooter<V>({ onNext, onBack, ...props }: StepperFooterProp
                     onNext?.(value)
                 }}
             >
-                Next
+                {step === steps - 1 ? 'Done' : 'Next'}
             </Button>
         </div>
     )
