@@ -1,10 +1,11 @@
 import { createContext, Dispatch, FC, useContext, useMemo, useState } from 'react'
-import { FnChildren, renderFnChildren } from '../utils/utils.ts'
+import { cn, FnChildren, renderFnChildren } from '../utils/utils.ts'
 import { Button } from '../components/Button.tsx'
 
 type StepperState<V> = {
     value?: V
     step?: number
+    steps: number
 }
 
 type StepperActions<V> = {
@@ -23,7 +24,10 @@ type StepperEvents<V> = {
 
 // =============== Context ===============
 
-export type StepperContext<V> = StepperState<V> & StepperActions<V>
+export type StepperContext<V> = StepperState<V> &
+    StepperActions<V> & {
+        titles?: string[]
+    }
 
 const stepperContext = createContext<StepperContext<any> | undefined>(undefined)
 
@@ -39,12 +43,13 @@ export function useStepperContext<V>(): StepperContext<V> {
 
 export type StepperProps<V> = StepperEvents<V> & {
     steps: number
+    titles?: string[]
     initialValue?: V
     children?: FnChildren<StepperContext<V>>
 }
 
-export function Stepper<V>({ steps, initialValue, children, ...props }: StepperProps<V>) {
-    const [state, setState] = useState<StepperState<V>>({ value: initialValue, step: 0 })
+export function Stepper<V>({ steps, titles, initialValue, children, ...props }: StepperProps<V>) {
+    const [state, setState] = useState<StepperState<V>>({ value: initialValue, step: 0, steps })
 
     const actions = useMemo(
         () => ({
@@ -65,6 +70,7 @@ export function Stepper<V>({ steps, initialValue, children, ...props }: StepperP
     const context: StepperContext<V> = {
         ...state,
         ...actions,
+        titles,
     }
 
     return <stepperContext.Provider value={context}>{renderFnChildren(children, context)}</stepperContext.Provider>
@@ -72,10 +78,19 @@ export function Stepper<V>({ steps, initialValue, children, ...props }: StepperP
 
 // =============== Header ===============
 
-export type StepperHeaderProps = unknown
+export function StepperHeader<V>() {
+    const { step, steps, titles } = useStepperContext<V>()
 
-export function StepperHeader(props: StepperHeaderProps) {
-    return <></>
+    return (
+        <div className='flex items-center gap-2'>
+            {[...Array(steps)].map((_, i) => (
+                <div className={cn('flex items-center gap-2', step === i && 'text-red-500')}>
+                    <p>{i}</p>
+                    <p>{titles?.[i]}</p>
+                </div>
+            ))}
+        </div>
+    )
 }
 
 // =============== Stepper Footer ===============
