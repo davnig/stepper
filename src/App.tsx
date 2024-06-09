@@ -1,4 +1,4 @@
-import { Stepper, StepperFooter, StepperHeader, useStepperContext } from './stepper/Stepper.tsx'
+import { Stepper, StepperFooter, StepperHeader, useStepperContext } from '@/components/stepper/Stepper.tsx'
 
 enum STEPS {
     FIRST,

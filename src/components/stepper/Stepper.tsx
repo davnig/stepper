@@ -1,6 +1,6 @@
 import { createContext, Dispatch, FC, useContext, useMemo, useState } from 'react'
-import { cn, FnChildren, renderFnChildren } from '../utils/utils.ts'
-import { Button } from '../components/Button.tsx'
+import { cn, FnChildren, renderFnChildren } from '../../utils/utils.ts'
+import { Button } from '@/components/ui/Button.tsx'
 
 type StepperState<V> = {
     value?: V
