@@ -1,11 +1,10 @@
 import { createContext, Dispatch, FC, useContext, useState } from 'react'
 import { FnChildren, renderFnChildren } from '../utils/utils.ts'
+import { Button } from '../components/Button.tsx'
 
 // =============== Context ===============
 
-export type StepperContext<V> = {
-    value?: V
-}
+export type StepperContext<V> = StepperState<V>
 
 const stepperContext = createContext<StepperContext<any> | undefined>(undefined)
 
@@ -24,18 +23,21 @@ type StepperState<V> = {
     step?: number
 }
 
-export type StepperProps<V> = {
-    steps?: number
-    initialValue?: V
-    children?: FnChildren<StepperContext<V>>
+type StepperActions = {
     onNext?: Dispatch<void>
     onBack?: Dispatch<void>
     onComplete?: Dispatch<void>
     onCancel?: Dispatch<void>
 }
 
+export type StepperProps<V> = StepperActions & {
+    steps?: number
+    initialValue?: V
+    children?: FnChildren<StepperContext<V>>
+}
+
 export function Stepper<V>({ steps, initialValue, children, ...props }: StepperProps<V>) {
-    const [state, setState] = useState<StepperState<V>>({ value: initialValue })
+    const [state, setState] = useState<StepperState<V>>({ value: initialValue, step: 0 })
 
     const context: StepperContext<V> = {
         ...state,
@@ -54,8 +56,15 @@ export function StepperHeader(props: StepperHeaderProps) {
 
 // =============== Stepper Footer ===============
 
-export type StepperFooterProps = unknown
+export type StepperFooterProps = StepperActions
 
-export function StepperFooter(props: StepperFooterProps) {
-    return <></>
+export function StepperFooter({ onNext, onBack, ...props }: StepperFooterProps) {
+    return (
+        <div className='flex items-center justify-between'>
+            <Button variant='secondary' onClick={() => onBack?.()}>
+                Back
+            </Button>
+            <Button onClick={() => onNext?.()}>Next</Button>
+        </div>
+    )
 }
