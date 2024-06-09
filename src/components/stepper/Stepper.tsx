@@ -84,7 +84,7 @@ export function StepperHeader<V>() {
     return (
         <div className='flex items-center gap-2'>
             {[...Array(steps)].map((_, i) => (
-                <div className={cn('flex items-center gap-2', step === i && 'text-red-500')}>
+                <div key={i} className={cn('flex items-center gap-2', step === i && 'text-red-500')}>
                     <p>{i}</p>
                     <p>{titles?.[i]}</p>
                 </div>
