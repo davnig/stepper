@@ -14,32 +14,38 @@ function isDateRange(date: DateRange | Date | undefined): date is DateRange {
 }
 
 export type DatePickerProps<D extends DateRange | Date> = {
+    mode?: 'single' | 'range'
     value?: D
     onChange?: Dispatch<D | undefined>
 }
 
-function DatePicker<D extends DateRange | Date>({ value: date, onChange: onDateChange }: DatePickerProps<D>) {
+function DatePicker<D extends DateRange | Date>({
+    mode = 'single',
+    value: date,
+    onChange: onDateChange,
+}: DatePickerProps<D>) {
     return (
         <Popover>
             <PopoverTrigger asChild>
                 <Button
                     id='date'
-                    variant={'outline'}
-                    className={cn('w-[300px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
+                    variant='outline'
+                    className={cn('w-full justify-start text-left font-normal', !date && 'text-muted-foreground')}
                 >
                     <CalendarIcon className='mr-2 h-4 w-4' />
-                    {date && !isDateRange(date) ? format(date, 'PPP') : <span>Pick a date</span>}
-                    {isDateRange(date) && date?.from ? (
-                        date.to ? (
-                            <>
-                                {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
-                            </>
+                    {mode === 'single' && (date && !isDateRange(date) ? format(date, 'PPP') : <span>Pick a date</span>)}
+                    {mode === 'range' &&
+                        (isDateRange(date) && date?.from ? (
+                            date.to ? (
+                                <>
+                                    {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
+                                </>
+                            ) : (
+                                format(date.from, 'LLL dd, y')
+                            )
                         ) : (
-                            format(date.from, 'LLL dd, y')
-                        )
-                    ) : (
-                        <span>Pick a date</span>
-                    )}
+                            <span>Pick a range</span>
+                        ))}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className='w-auto p-0' align='start'>

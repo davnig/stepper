@@ -1,6 +1,7 @@
-import { createContext, Dispatch, FC, useContext, useMemo, useState } from 'react'
+import { createContext, Dispatch, FC, forwardRef, ReactNode, Ref, useContext, useMemo, useState } from 'react'
 import { cn, FnChildren, renderFnChildren } from '../../utils/utils.ts'
 import { Button } from '@/components/ui/Button.tsx'
+import { Slot } from '@radix-ui/react-slot'
 
 type StepperState<V> = {
     value?: V
@@ -76,9 +77,20 @@ export function Stepper<V>({ steps, titles, initialValue, children, ...props }: 
     return <stepperContext.Provider value={context}>{renderFnChildren(children, context)}</stepperContext.Provider>
 }
 
-// =============== Header ===============
+// =================== Step ===================
 
-export function StepperHeader<V>() {
+export type StepProps = {
+    children?: ReactNode
+    className?: string
+}
+
+export function Step({ children, className }: StepProps) {
+    return <div className={cn('flex h-full w-[50rem] flex-col gap-4', className)}>{children}</div>
+}
+
+// =============== Step Header ===============
+
+export function StepHeader<V>() {
     const { step, steps, titles } = useStepperContext<V>()
 
     return (
@@ -93,15 +105,30 @@ export function StepperHeader<V>() {
     )
 }
 
-// =============== Stepper Footer ===============
+// =============== Step Content ===============
 
-export type StepperFooterProps<V> = StepperEvents<V>
+export type StepContentProps = {
+    className?: string
+    asChild?: boolean
+    children?: ReactNode
+}
 
-export function StepperFooter<V>({ onNext, onBack, ...props }: StepperFooterProps<V>) {
+export const StepContent = forwardRef(({ className, asChild, ...props }: StepContentProps, ref: Ref<any>) => {
+    const Comp = asChild ? Slot : 'div'
+    return <Comp className={cn('flex-1', className)} ref={ref} {...props} />
+})
+
+// =============== Step Footer ===============
+
+export type StepFooterProps<V> = StepperEvents<V> & {
+    className?: string
+}
+
+export function StepFooter<V>({ className, onNext, onBack, ...props }: StepFooterProps<V>) {
     const { value, next, back, step, steps } = useStepperContext<V>()
 
     return (
-        <div className='flex items-center justify-between'>
+        <div className={cn('flex items-center justify-between', className)}>
             <Button
                 variant='secondary'
                 onClick={() => {

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { StepperFooter, StepperHeader, useStepperContext } from '@/components/stepper/Stepper.tsx'
+import { Step, StepContent, StepFooter, StepHeader, useStepperContext } from '@/components/stepper/Stepper.tsx'
 import { useMemo } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/Form.tsx'
 import { Input } from '@/components/ui/Input.tsx'
 import { DatePicker } from '@/components/ui/DatePicker.tsx'
+import { addDays, formatDuration, intervalToDuration } from 'date-fns'
+import { TextArea } from '@/components/ui/TextArea.tsx'
 
 export function StepProjectDetails() {
     const stepperCtx = useStepperContext<string>()
@@ -28,8 +30,12 @@ export function StepProjectDetails() {
                 description: z.string().min(2, {
                     message: 'Description must be at least 2 characters.',
                 }),
-                // todo: date
-                duration: z.string().date(),
+                duration: z.object(
+                    { from: z.date(), to: z.date() },
+                    {
+                        required_error: 'A date is required.',
+                    }
+                ),
             }),
         []
     )
@@ -39,7 +45,7 @@ export function StepProjectDetails() {
         defaultValues: {
             jobTitle: '',
             description: '',
-            duration: '',
+            duration: { from: new Date(), to: addDays(new Date(), 1) },
         },
     })
 
@@ -49,59 +55,61 @@ export function StepProjectDetails() {
     }
 
     return (
-        <div className='flex min-w-96 flex-col gap-8'>
-            <StepperHeader />
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
-                    <FormField
-                        control={form.control}
-                        name='jobTitle'
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Job title</FormLabel>
-                                <FormControl>
-                                    <Input placeholder='Enter a job title' {...field} />
-                                </FormControl>
-                                {/*<FormDescription>This is your public display name.</FormDescription>*/}
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+        <Step>
+            <StepHeader />
+            <StepContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+                        <FormField
+                            control={form.control}
+                            name='jobTitle'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Job title</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder='Enter a title for this job' {...field} />
+                                    </FormControl>
+                                    {/*<FormDescription>This is your public display name.</FormDescription>*/}
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={form.control}
-                        name='description'
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Description</FormLabel>
-                                <FormControl>
-                                    <Input placeholder='Enter a description' {...field} />
-                                </FormControl>
-                                {/*<FormDescription>This is your public display name.</FormDescription>*/}
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                        <FormField
+                            control={form.control}
+                            name='description'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                                        <TextArea placeholder='Enter a description' {...field} />
+                                    </FormControl>
+                                    {/*<FormDescription>This is your public display name.</FormDescription>*/}
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={form.control}
-                        name='duration'
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Job duration</FormLabel>
-                                <FormControl>
-                                    <DatePicker {...field} />
-                                </FormControl>
-                                {/*<FormDescription>This is your public display name.</FormDescription>*/}
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    {/*<Button type='submit'>Submit</Button>*/}
-                </form>
-            </Form>
-            <p>{stepperCtx.value}</p>
-            <StepperFooter />
-        </div>
+                        <FormField
+                            control={form.control}
+                            name='duration'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Job duration</FormLabel>
+                                    <FormControl>
+                                        <DatePicker mode='range' {...field} />
+                                    </FormControl>
+                                    <FormDescription>{`The job has a selected duration of ${formatDuration(intervalToDuration({ start: field.value.from, end: field.value.to }))}`}</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        {/*<Button type='submit'>Submit</Button>*/}
+                    </form>
+                </Form>
+                <p>{stepperCtx.value}</p>
+            </StepContent>
+            <StepFooter />
+        </Step>
     )
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card.tsx'
-import { StepperFooter, useStepperContext } from '@/components/stepper/Stepper.tsx'
+import { Step, StepContent, StepFooter, useStepperContext } from '@/components/stepper/Stepper.tsx'
 import * as React from 'react'
 
 enum Contract {
@@ -34,33 +34,35 @@ export function StepContractType() {
     ]
 
     return (
-        <div className='flex flex-col justify-center gap-4'>
-            <p className='self-center font-semibold'>What type of Contractor's contract you need?</p>
-            <div className='flex items-center gap-4'>
-                {cards.map((card, ix) => (
-                    <Card
-                        key={ix}
-                        onClick={() => setContractType(card.value)}
-                        className='w-52 cursor-pointer hover:shadow-md'
-                    >
-                        <CardHeader className='flex flex-col items-center text-center'>
-                            <CardTitle>{card.title}</CardTitle>
-                            <CardDescription>{card.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className='flex justify-center'>
-                            <input
-                                type='radio'
-                                value={card.value}
-                                name='contract-type'
-                                checked={contractType === card.value}
-                                onChange={event => event.target.checked && setContractType(card.value)}
-                            />
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-            <p>{stepperCtx.value}</p>
-            <StepperFooter />
-        </div>
+        <Step className='justify-center'>
+            <StepContent className='flex flex-col items-center gap-4'>
+                <p className='self-center font-semibold'>What type of Contractor's contract you need?</p>
+                <div className='flex items-center gap-4'>
+                    {cards.map((card, ix) => (
+                        <Card
+                            key={ix}
+                            onClick={() => setContractType(card.value)}
+                            className='w-52 cursor-pointer hover:shadow-md'
+                        >
+                            <CardHeader className='flex flex-col items-center text-center'>
+                                <CardTitle>{card.title}</CardTitle>
+                                <CardDescription>{card.description}</CardDescription>
+                            </CardHeader>
+                            <CardContent className='flex justify-center'>
+                                <input
+                                    type='radio'
+                                    value={card.value}
+                                    name='contract-type'
+                                    checked={contractType === card.value}
+                                    onChange={event => event.target.checked && setContractType(card.value)}
+                                />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                <p>{stepperCtx.value}</p>
+            </StepContent>
+            <StepFooter />
+        </Step>
     )
 }
