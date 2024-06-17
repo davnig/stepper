@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Step, StepContent, StepFooter, StepHeader, useStepperContext } from '@/components/stepper/Stepper.tsx'
-import { useMemo } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,31 +16,30 @@ import { Input } from '@/components/ui/Input.tsx'
 import { DatePicker } from '@/components/ui/DatePicker.tsx'
 import { addDays, formatDuration, intervalToDuration } from 'date-fns'
 import { TextArea } from '@/components/ui/TextArea.tsx'
+import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
+
+const FORM_SCHEMA = z.object({
+    jobTitle: z.string().min(2, {
+        message: 'Job title must be at least 2 characters.',
+    }),
+    description: z.string().min(2, {
+        message: 'Description must be at least 2 characters.',
+    }),
+    duration: z.object(
+        { from: z.date(), to: z.date() },
+        {
+            required_error: 'A date is required.',
+        }
+    ),
+})
+
+export type StepProjectDetailsResult = z.infer<typeof FORM_SCHEMA>
 
 export function StepProjectDetails() {
     const stepperCtx = useStepperContext<string>()
 
-    const FormSchema = useMemo(
-        () =>
-            z.object({
-                jobTitle: z.string().min(2, {
-                    message: 'Job title must be at least 2 characters.',
-                }),
-                description: z.string().min(2, {
-                    message: 'Description must be at least 2 characters.',
-                }),
-                duration: z.object(
-                    { from: z.date(), to: z.date() },
-                    {
-                        required_error: 'A date is required.',
-                    }
-                ),
-            }),
-        []
-    )
-
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const form = useForm<StepProjectDetailsResult>({
+        resolver: zodResolver(FORM_SCHEMA),
         defaultValues: {
             jobTitle: '',
             description: '',
@@ -49,9 +47,10 @@ export function StepProjectDetails() {
         },
     })
 
-    const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    const onSubmit = (data: StepProjectDetailsResult) => {
         // todo: submit
         console.log(data)
+        return data
     }
 
     return (
@@ -59,7 +58,7 @@ export function StepProjectDetails() {
             <StepHeader />
             <StepContent>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+                    <form className='w-full space-y-6'>
                         <FormField
                             control={form.control}
                             name='jobTitle'
@@ -99,17 +98,32 @@ export function StepProjectDetails() {
                                     <FormControl>
                                         <DatePicker mode='range' {...field} />
                                     </FormControl>
-                                    <FormDescription>{`The job has a selected duration of ${formatDuration(intervalToDuration({ start: field.value.from, end: field.value.to }))}`}</FormDescription>
+                                    <FormDescription>{`The job has a selected duration of ${formatDuration(
+                                        intervalToDuration({
+                                            start: field.value.from,
+                                            end: field.value.to,
+                                        })
+                                    )}`}</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        {/*<Button type='submit'>Submit</Button>*/}
                     </form>
                 </Form>
-                <p>{stepperCtx.value}</p>
+                <JsonViewer>{stepperCtx.value}</JsonViewer>
             </StepContent>
-            <StepFooter />
+            <StepFooter
+                onNext={async val => {
+                    await form.trigger()
+                    if (!form.formState.isValid) throw new Error('Form is not valid')
+
+                    let res: StepProjectDetailsResult
+                    await form.handleSubmit(formValues => {
+                        res = { ...(val ?? {}), ...formValues }
+                    })()
+                    return res!
+                }}
+            />
         </Step>
     )
 }

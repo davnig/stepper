@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover
 import { Button } from '@/components/ui/Button.tsx'
 import { cn } from '@/utils/utils.ts'
 import { CalendarIcon } from '@radix-ui/react-icons'
-import { Dispatch } from 'react'
+import { Dispatch, ForwardedRef, forwardRef } from 'react'
 import { format } from 'date-fns'
 import { Calendar } from '@/components/ui/Calendar.tsx'
 import { DateRange } from 'react-day-picker'
@@ -19,11 +19,10 @@ export type DatePickerProps<D extends DateRange | Date> = {
     onChange?: Dispatch<D | undefined>
 }
 
-function DatePicker<D extends DateRange | Date>({
-    mode = 'single',
-    value: date,
-    onChange: onDateChange,
-}: DatePickerProps<D>) {
+function DatePickerWithRef<D extends DateRange | Date>(
+    { mode = 'single', value: date, onChange: onDateChange, ...props }: DatePickerProps<D>,
+    ref: ForwardedRef<HTMLDivElement>
+) {
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -48,7 +47,7 @@ function DatePicker<D extends DateRange | Date>({
                         ))}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-auto p-0' align='start'>
+            <PopoverContent className='w-auto p-0' align='start' ref={ref} {...props}>
                 {/*todo: fix typing*/}
                 {!isDateRange(date) ? (
                     <Calendar mode='single' selected={date} onSelect={val => onDateChange?.(val as any)} initialFocus />
@@ -67,4 +66,6 @@ function DatePicker<D extends DateRange | Date>({
     )
 }
 
-export { DatePicker }
+export const DatePicker = forwardRef(DatePickerWithRef) as <D extends DateRange | Date>(
+    props: DatePickerProps<D> & { ref?: ForwardedRef<HTMLDivElement> }
+) => ReturnType<typeof DatePickerWithRef<D>>

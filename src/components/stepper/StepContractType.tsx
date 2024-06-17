@@ -1,7 +1,8 @@
+import * as React from 'react'
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card.tsx'
 import { Step, StepContent, StepFooter, useStepperContext } from '@/components/stepper/Stepper.tsx'
-import * as React from 'react'
+import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
 
 enum Contract {
     FIXED_RATE = 'fixed-rate',
@@ -10,6 +11,8 @@ enum Contract {
 }
 
 export type ContractType = `${Contract}`
+
+export type StepContractTypeResult = ContractType
 
 export function StepContractType() {
     const [contractType, setContractType] = useState<ContractType>(Contract.FIXED_RATE)
@@ -60,9 +63,9 @@ export function StepContractType() {
                         </Card>
                     ))}
                 </div>
-                <p>{stepperCtx.value}</p>
+                <JsonViewer>{stepperCtx.value}</JsonViewer>
             </StepContent>
-            <StepFooter />
+            <StepFooter onNext={async val => ({ ...(val ?? {}), contractType })} />
         </Step>
     )
 }

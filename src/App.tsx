@@ -1,21 +1,7 @@
-import { Stepper, StepFooter, StepHeader, useStepperContext } from '@/components/stepper/Stepper.tsx'
-import { Input } from '@/components/ui/Input.tsx'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/Form.tsx'
-import { useMemo, useState } from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card.tsx'
-import { StepContractType } from '@/components/stepper/StepContractType.tsx'
-import { StepProjectDetails } from '@/components/stepper/StepProjectDetails.tsx'
+import { Stepper } from '@/components/stepper/Stepper.tsx'
+import { ContractType, StepContractType, StepContractTypeResult } from '@/components/stepper/StepContractType.tsx'
+import { StepProjectDetails, StepProjectDetailsResult } from '@/components/stepper/StepProjectDetails.tsx'
+import { StepContractAmount } from '@/components/stepper/StepContractAmount.tsx'
 
 /*
 1. Fixed Rate
@@ -106,18 +92,20 @@ enum STEPS {
     CONTRACT_AMOUNT,
 }
 
+export type StepperResult = StepContractTypeResult & StepProjectDetailsResult
+
 export function App() {
     return (
-        <Stepper
+        <Stepper<Partial<StepperResult>>
             steps={Object.keys(STEPS).length / 2}
-            initialValue='hello world'
+            initialValue={undefined}
             titles={['Contract type', 'Project details', 'Contract amount']}
         >
             {({ step }) => (
                 <div className='flex h-screen w-screen flex-col items-center justify-between py-8'>
                     {step === STEPS.CONTRACT_TYPE && <StepContractType />}
                     {step === STEPS.PROJECT_DETAILS && <StepProjectDetails />}
-                    {/*{step === STEPS.CONTRACT_AMOUNT && <Step3 />}*/}
+                    {step === STEPS.CONTRACT_AMOUNT && <StepContractAmount />}
                 </div>
             )}
         </Stepper>
