@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card.tsx'
-import { Step, StepContent, StepFooter, useStepperContext } from '@/components/stepper/Stepper.tsx'
+import { Step, StepContent, StepFooter, StepHeader, useStepperContext } from '@/components/stepper/Stepper.tsx'
 import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
 
 enum Contract {
@@ -37,10 +37,11 @@ export function StepContractType() {
     ]
 
     return (
-        <Step className='justify-center'>
+        <Step>
+            <StepHeader />
             <StepContent className='flex flex-col items-center gap-4'>
                 <p className='self-center font-semibold'>What type of Contractor's contract you need?</p>
-                <div className='flex items-center gap-4'>
+                <div className='flex flex-col gap-4 md:flex-row md:items-center'>
                     {cards.map((card, ix) => (
                         <Card
                             key={ix}

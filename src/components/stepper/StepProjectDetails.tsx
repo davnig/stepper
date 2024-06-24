@@ -47,12 +47,6 @@ export function StepProjectDetails() {
         },
     })
 
-    const onSubmit = (data: StepProjectDetailsResult) => {
-        // todo: submit
-        console.log(data)
-        return data
-    }
-
     return (
         <Step>
             <StepHeader />
@@ -115,7 +109,7 @@ export function StepProjectDetails() {
             <StepFooter
                 onNext={async val => {
                     await form.trigger()
-                    if (!form.formState.isValid) throw new Error('Form is not valid')
+                    if (!form.formState.isValid) return
 
                     let res: StepProjectDetailsResult
                     await form.handleSubmit(formValues => {

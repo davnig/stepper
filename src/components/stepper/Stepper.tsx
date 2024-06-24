@@ -95,23 +95,76 @@ export type StepProps = {
 }
 
 export function Step({ children, className }: StepProps) {
-    return <div className={cn('flex h-full w-[50rem] flex-col gap-4', className)}>{children}</div>
+    return <div className={cn('flex h-full w-full flex-col gap-4', className)}>{children}</div>
 }
 
 // =============== Step Header ===============
 
 export function StepHeader<V>() {
-    const { step, steps, titles } = useStepperContext<V>()
+    const { step: stepCtx, steps, titles } = useStepperContext<V>()
+
+    const step = stepCtx ?? 0
 
     return (
-        <div className='flex items-center gap-2'>
+        <ul aria-label='Steps' className='text-foreground-sub items-center md:flex'>
             {[...Array(steps)].map((_, i) => (
-                <div key={i} className={cn('flex items-center gap-2', step === i && 'text-red-500')}>
-                    <p>{i}</p>
-                    <p>{titles?.[i]}</p>
-                </div>
+                <li
+                    aria-current={stepCtx === i ? 'step' : false}
+                    className='flex gap-x-3 md:flex-1 md:flex-col-reverse md:gap-2 md:gap-x-0'
+                >
+                    {/* Indicator */}
+                    <div className='flex flex-col items-center md:flex-1 md:flex-row'>
+                        {/* Left line */}
+                        <div
+                            className={cn(
+                                'hidden w-full border md:block',
+                                i == 0 && 'border-none',
+                                step >= i && 'border-primary'
+                            )}
+                        />
+                        {/* Circle */}
+                        <div
+                            className={cn(
+                                'flex h-4 w-4 flex-none items-center justify-center rounded-full border-2',
+                                step > i && 'border-primary bg-primary',
+                                step === i && 'border-primary'
+                            )}
+                        >
+                            {/*<span className={cn('h-2 w-2 rounded-full bg-primary', step != i && 'hidden')}></span>*/}
+                            {step > i ? (
+                                <svg
+                                    xmlns='http://www.w3.org/2000/svg'
+                                    fill='none'
+                                    viewBox='0 0 24 24'
+                                    strokeWidth={1.5}
+                                    stroke='currentColor'
+                                    className='h-5 w-5 text-white'
+                                >
+                                    <path strokeLinecap='round' strokeLinejoin='round' d='M4.5 12.75l6 6 9-13.5' />
+                                </svg>
+                            ) : (
+                                ''
+                            )}
+                        </div>
+                        {/* Right line */}
+                        <div
+                            className={cn(
+                                'h-12 border md:h-auto md:w-full',
+                                i + 1 === steps && 'border-none',
+                                step > i && 'border-primary'
+                            )}
+                        />
+                    </div>
+
+                    {/* Title */}
+                    <div className='flex h-4 items-center justify-center md:mt-3 md:h-auto'>
+                        <span className={cn('text-sm text-muted-foreground', step === i && 'text-primary')}>
+                            {titles?.[i]}
+                        </span>
+                    </div>
+                </li>
             ))}
-        </div>
+        </ul>
     )
 }
 

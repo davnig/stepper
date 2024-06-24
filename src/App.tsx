@@ -1,5 +1,5 @@
 import { Stepper } from '@/components/stepper/Stepper.tsx'
-import { ContractType, StepContractType, StepContractTypeResult } from '@/components/stepper/StepContractType.tsx'
+import { StepContractType, StepContractTypeResult } from '@/components/stepper/StepContractType.tsx'
 import { StepProjectDetails, StepProjectDetailsResult } from '@/components/stepper/StepProjectDetails.tsx'
 import { StepContractAmount } from '@/components/stepper/StepContractAmount.tsx'
 
@@ -102,7 +102,7 @@ export function App() {
             titles={['Contract type', 'Project details', 'Contract amount']}
         >
             {({ step }) => (
-                <div className='flex h-screen w-screen flex-col items-center justify-between py-8'>
+                <div className='flex flex-col items-center justify-between overflow-auto p-8'>
                     {step === STEPS.CONTRACT_TYPE && <StepContractType />}
                     {step === STEPS.PROJECT_DETAILS && <StepProjectDetails />}
                     {step === STEPS.CONTRACT_AMOUNT && <StepContractAmount />}
