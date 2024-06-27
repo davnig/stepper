@@ -17,6 +17,7 @@ import { DatePicker } from '@/components/ui/DatePicker.tsx'
 import { addDays, formatDuration, intervalToDuration } from 'date-fns'
 import { TextArea } from '@/components/ui/TextArea.tsx'
 import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
+import { StepperResult } from '@/App.tsx'
 
 const FORM_SCHEMA = z.object({
     jobTitle: z.string().min(2, {
@@ -36,7 +37,7 @@ const FORM_SCHEMA = z.object({
 export type StepProjectDetailsResult = z.infer<typeof FORM_SCHEMA>
 
 export function StepProjectDetails() {
-    const stepperCtx = useStepperContext<string>()
+    const stepperCtx = useStepperContext<StepperResult>()
 
     const form = useForm<StepProjectDetailsResult>({
         resolver: zodResolver(FORM_SCHEMA),
@@ -44,6 +45,7 @@ export function StepProjectDetails() {
             jobTitle: '',
             description: '',
             duration: { from: new Date(), to: addDays(new Date(), 1) },
+            ...stepperCtx.value,
         },
     })
 
@@ -109,7 +111,7 @@ export function StepProjectDetails() {
             <StepFooter
                 onNext={async val => {
                     await form.trigger()
-                    if (!form.formState.isValid) return
+                    if (!form.formState.isValid) throw new Error('Invalid stepper form')
 
                     let res: StepProjectDetailsResult
                     await form.handleSubmit(formValues => {

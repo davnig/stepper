@@ -130,8 +130,7 @@ export function StepHeader<V>() {
                                 step === i && 'border-primary'
                             )}
                         >
-                            {/*<span className={cn('h-2 w-2 rounded-full bg-primary', step != i && 'hidden')}></span>*/}
-                            {step > i ? (
+                            {step > i && (
                                 <svg
                                     xmlns='http://www.w3.org/2000/svg'
                                     fill='none'
@@ -142,8 +141,6 @@ export function StepHeader<V>() {
                                 >
                                     <path strokeLinecap='round' strokeLinejoin='round' d='M4.5 12.75l6 6 9-13.5' />
                                 </svg>
-                            ) : (
-                                ''
                             )}
                         </div>
                         {/* Right line */}

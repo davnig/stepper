@@ -92,11 +92,11 @@ enum STEPS {
     CONTRACT_AMOUNT,
 }
 
-export type StepperResult = StepContractTypeResult & StepProjectDetailsResult
+export type StepperResult = Partial<StepContractTypeResult & StepProjectDetailsResult>
 
 export function App() {
     return (
-        <Stepper<Partial<StepperResult>>
+        <Stepper<StepperResult>
             steps={Object.keys(STEPS).length / 2}
             initialValue={undefined}
             titles={['Contract type', 'Project details', 'Contract amount']}
