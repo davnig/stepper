@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Step, StepContent, StepFooter, StepHeader, useStepperContext } from '@/components/stepper/Stepper.tsx'
 import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
 import { StepperResult } from '@/App.tsx'
+import { cn } from '@/utils/utils.ts'
 
 enum Contract {
     FIXED_RATE = 'fixed-rate',
@@ -50,7 +51,10 @@ export function StepContractType() {
                         <Card
                             key={ix}
                             onClick={() => setContractType(card.value)}
-                            className='w-52 cursor-pointer hover:shadow-md'
+                            className={cn(
+                                'w-52 cursor-pointer hover:shadow-md',
+                                contractType === card.value && 'border border-primary'
+                            )}
                         >
                             <CardHeader className='flex flex-col items-center text-center'>
                                 <CardTitle>{card.title}</CardTitle>

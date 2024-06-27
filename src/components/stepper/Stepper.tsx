@@ -108,10 +108,7 @@ export function StepHeader<V>() {
     return (
         <ul aria-label='Steps' className='text-foreground-sub items-center md:flex'>
             {[...Array(steps)].map((_, i) => (
-                <li
-                    aria-current={stepCtx === i ? 'step' : false}
-                    className='flex gap-x-3 md:flex-1 md:flex-col-reverse md:gap-2 md:gap-x-0'
-                >
+                <div key={i} className='flex gap-x-3 md:flex-1 md:flex-col-reverse md:gap-2 md:gap-x-0'>
                     {/* Indicator */}
                     <div className='flex flex-col items-center md:flex-1 md:flex-row'>
                         {/* Left line */}
@@ -159,7 +156,7 @@ export function StepHeader<V>() {
                             {titles?.[i]}
                         </span>
                     </div>
-                </li>
+                </div>
             ))}
         </ul>
     )

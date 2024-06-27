@@ -20,12 +20,8 @@ import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
 import { StepperResult } from '@/App.tsx'
 
 const FORM_SCHEMA = z.object({
-    jobTitle: z.string().min(2, {
-        message: 'Job title must be at least 2 characters.',
-    }),
-    description: z.string().min(2, {
-        message: 'Description must be at least 2 characters.',
-    }),
+    jobTitle: z.string(),
+    description: z.string(),
     duration: z.object(
         { from: z.date(), to: z.date() },
         {
@@ -64,7 +60,6 @@ export function StepProjectDetails() {
                                     <FormControl>
                                         <Input placeholder='Enter a title for this job' {...field} />
                                     </FormControl>
-                                    {/*<FormDescription>This is your public display name.</FormDescription>*/}
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -79,7 +74,6 @@ export function StepProjectDetails() {
                                     <FormControl>
                                         <TextArea placeholder='Enter a description' {...field} />
                                     </FormControl>
-                                    {/*<FormDescription>This is your public display name.</FormDescription>*/}
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -111,6 +105,8 @@ export function StepProjectDetails() {
             <StepFooter
                 onNext={async val => {
                     await form.trigger()
+                    // todo:
+                    // if (!form.formState.isValid) return { ...(val ?? {}) }
                     if (!form.formState.isValid) throw new Error('Invalid stepper form')
 
                     let res: StepProjectDetailsResult
