@@ -136,6 +136,7 @@ export function StepHeader<V>() {
     const step = stepCtx ?? 0
 
     return (
+        // todo: add box shadow on scroll
         <div className='text-foreground-sub sticky top-0 flex min-h-8 items-center bg-background p-8 md:h-auto'>
             {[...Array(steps)].map((_, i) => (
                 <div
@@ -212,12 +213,20 @@ export type StepContentProps = {
     className?: string
     asChild?: boolean
     children?: ReactNode
+    title?: string
 }
 
-export const StepContent = forwardRef(({ className, asChild, ...props }: StepContentProps, ref: Ref<any>) => {
-    const Comp = asChild ? Slot : 'div'
-    return <Comp className={cn('flex-1 overflow-auto px-8 py-4', className)} ref={ref} {...props} />
-})
+export const StepContent = forwardRef(
+    ({ className, asChild, title, children, ...props }: StepContentProps, ref: Ref<any>) => {
+        const Comp = asChild ? Slot : 'div'
+        return (
+            <Comp className={cn('flex-1 overflow-auto px-8 py-4', className)} ref={ref} {...props}>
+                {title && <p className='self-center font-semibold'>{title}</p>}
+                {children}
+            </Comp>
+        )
+    }
+)
 
 // =============== Step Footer ===============
 

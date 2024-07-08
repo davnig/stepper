@@ -18,11 +18,12 @@ import { addDays, formatDuration, intervalToDuration } from 'date-fns'
 import { TextArea } from '@/components/ui/TextArea.tsx'
 import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
 import { StepperResult } from '@/App.tsx'
+import { Environ } from '@/env.ts'
 
 const FORM_SCHEMA = z.object({
-    jobTitle: z.string(),
-    description: z.string(),
-    duration: z.object(
+    projectTitle: z.string(),
+    projectDescription: z.string(),
+    projectDuration: z.object(
         { from: z.date(), to: z.date() },
         {
             required_error: 'A date is required.',
@@ -38,9 +39,9 @@ export function StepProjectDetails() {
     const form = useForm<StepProjectDetailsResult>({
         resolver: zodResolver(FORM_SCHEMA),
         defaultValues: {
-            jobTitle: '',
-            description: '',
-            duration: { from: new Date(), to: addDays(new Date(), 1) },
+            projectTitle: '',
+            projectDescription: '',
+            projectDuration: { from: new Date(), to: addDays(new Date(), 1) },
             ...stepperCtx.value,
         },
     })
@@ -61,17 +62,17 @@ export function StepProjectDetails() {
             }}
         >
             <StepHeader />
-            <StepContent>
+            <StepContent title='Describe the project' className='flex flex-col gap-6'>
                 <Form {...form}>
                     <form className='w-full space-y-6'>
                         <FormField
                             control={form.control}
-                            name='jobTitle'
+                            name='projectTitle'
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Job title</FormLabel>
+                                    <FormLabel>Title</FormLabel>
                                     <FormControl>
-                                        <Input placeholder='Enter a title for this job' {...field} />
+                                        <Input placeholder='Enter a title for this project' {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -80,12 +81,12 @@ export function StepProjectDetails() {
 
                         <FormField
                             control={form.control}
-                            name='description'
+                            name='projectDescription'
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
-                                        <TextArea placeholder='Enter a description' {...field} />
+                                        <TextArea placeholder='Enter a description for this project' {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -94,14 +95,14 @@ export function StepProjectDetails() {
 
                         <FormField
                             control={form.control}
-                            name='duration'
+                            name='projectDuration'
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Job duration</FormLabel>
+                                    <FormLabel>Duration</FormLabel>
                                     <FormControl>
                                         <DatePicker mode='range' {...field} />
                                     </FormControl>
-                                    <FormDescription>{`The job has a selected duration of ${formatDuration(
+                                    <FormDescription>{`The project has a selected duration of ${formatDuration(
                                         intervalToDuration({
                                             start: field.value.from,
                                             end: field.value.to,
@@ -113,7 +114,7 @@ export function StepProjectDetails() {
                         />
                     </form>
                 </Form>
-                <JsonViewer>{stepperCtx.value}</JsonViewer>
+                {Environ.isDev && <JsonViewer>{stepperCtx.value}</JsonViewer>}
             </StepContent>
             <StepFooter />
         </Step>

@@ -1,9 +1,10 @@
 import { Stepper } from '@/components/stepper/Stepper.tsx'
 import { StepContractType, StepContractTypeResult } from '@/components/stepper/StepContractType.tsx'
 import { StepProjectDetails, StepProjectDetailsResult } from '@/components/stepper/StepProjectDetails.tsx'
-import { StepPaymentTerms, StepPaymentTermsResult } from '@/components/stepper/StepPaymentTerms.tsx'
+import { StepPaymentMethod, StepPaymentMethodResult } from '@/components/stepper/StepPaymentMethod.tsx'
 import { StepReview } from '@/components/stepper/StepReview.tsx'
 import { IconContext } from '@phosphor-icons/react'
+import { StepPaymentTerms } from '@/components/stepper/StepPaymentTerms.tsx'
 
 /*
 1. Fixed Rate
@@ -96,32 +97,35 @@ Step 7: Review and Confirmation
 enum STEPS {
     CONTRACT_TYPE,
     PROJECT_DETAILS,
+    CONTRACT_TERMS,
     CONTRACT_AMOUNT,
     RESULT,
 }
 
-export type StepperResult = Partial<StepContractTypeResult & StepProjectDetailsResult & StepPaymentTermsResult>
+export type StepperResult = Partial<StepContractTypeResult & StepProjectDetailsResult & StepPaymentMethodResult>
 
+// todo: add watermark
 export function App() {
     return (
         <IconContext.Provider
             value={{
                 // color: 'limegreen',
                 // size: 32,
-                weight: 'light',
+                weight: 'regular',
                 // mirrored: false,
             }}
         >
             <Stepper<StepperResult>
                 steps={Object.keys(STEPS).length / 2}
                 initialValue={undefined}
-                titles={['Contract type', 'Project details', 'Payment terms', 'Review']}
+                titles={['Contract type', 'Project details', 'Payment terms', 'Payment method', 'Review']}
             >
                 {({ step }) => (
                     <>
                         {step === STEPS.CONTRACT_TYPE && <StepContractType />}
                         {step === STEPS.PROJECT_DETAILS && <StepProjectDetails />}
-                        {step === STEPS.CONTRACT_AMOUNT && <StepPaymentTerms />}
+                        {step === STEPS.CONTRACT_TERMS && <StepPaymentTerms />}
+                        {step === STEPS.CONTRACT_AMOUNT && <StepPaymentMethod />}
                         {step === STEPS.RESULT && <StepReview />}
                     </>
                 )}

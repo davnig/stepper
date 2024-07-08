@@ -5,6 +5,7 @@ import { Step, StepContent, StepFooter, StepHeader, useStepperContext } from '@/
 import { JsonViewer } from '@/components/ui/JsonViewer.tsx'
 import { StepperResult } from '@/App.tsx'
 import { cn } from '@/utils/utils.ts'
+import { Environ } from '@/env.ts'
 
 enum Contract {
     FIXED_RATE = 'fixed-rate',
@@ -44,8 +45,10 @@ export function StepContractType() {
     return (
         <Step onNext={async val => ({ ...(val ?? {}), contractType })}>
             <StepHeader />
-            <StepContent className='flex flex-col items-center gap-4'>
-                <p className='self-center font-semibold'>What type of Contractor's contract you need?</p>
+            <StepContent
+                title="What type of Contractor's contract you need?"
+                className='flex flex-col items-center gap-6'
+            >
                 <div className='flex flex-col gap-4 md:flex-row md:items-center'>
                     {cards.map((card, ix) => (
                         <Card
@@ -72,7 +75,7 @@ export function StepContractType() {
                         </Card>
                     ))}
                 </div>
-                <JsonViewer>{stepperCtx.value}</JsonViewer>
+                {Environ.isDev && <JsonViewer>{stepperCtx.value}</JsonViewer>}
             </StepContent>
             <StepFooter />
         </Step>
