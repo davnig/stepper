@@ -46,7 +46,20 @@ export function StepProjectDetails() {
     })
 
     return (
-        <Step>
+        <Step
+            onNext={async val => {
+                await form.trigger()
+                // todo:
+                // if (!form.formState.isValid) return { ...(val ?? {}) }
+                if (!form.formState.isValid) throw new Error('Invalid stepper form')
+
+                let res: StepProjectDetailsResult
+                await form.handleSubmit(formValues => {
+                    res = { ...(val ?? {}), ...formValues }
+                })()
+                return res!
+            }}
+        >
             <StepHeader />
             <StepContent>
                 <Form {...form}>
@@ -102,20 +115,7 @@ export function StepProjectDetails() {
                 </Form>
                 <JsonViewer>{stepperCtx.value}</JsonViewer>
             </StepContent>
-            <StepFooter
-                onNext={async val => {
-                    await form.trigger()
-                    // todo:
-                    // if (!form.formState.isValid) return { ...(val ?? {}) }
-                    if (!form.formState.isValid) throw new Error('Invalid stepper form')
-
-                    let res: StepProjectDetailsResult
-                    await form.handleSubmit(formValues => {
-                        res = { ...(val ?? {}), ...formValues }
-                    })()
-                    return res!
-                }}
-            />
+            <StepFooter />
         </Step>
     )
 }

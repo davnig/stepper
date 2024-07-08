@@ -62,7 +62,18 @@ export function StepPaymentTerms() {
     )
 
     return (
-        <Step>
+        <Step
+            onNext={async val => {
+                await form.trigger()
+                if (!form.formState.isValid) throw new Error('Invalid stepper form')
+
+                let res: StepPaymentTermsResult
+                await form.handleSubmit(formValues => {
+                    res = { ...(val ?? {}), ...formValues }
+                })()
+                return res!
+            }}
+        >
             <StepHeader />
             <StepContent className='flex flex-col items-center gap-4'>
                 <Form {...form}>
@@ -153,18 +164,7 @@ export function StepPaymentTerms() {
                 </Form>
                 <JsonViewer>{stepperCtx.value}</JsonViewer>
             </StepContent>
-            <StepFooter
-                onNext={async val => {
-                    await form.trigger()
-                    if (!form.formState.isValid) throw new Error('Invalid stepper form')
-
-                    let res: StepPaymentTermsResult
-                    await form.handleSubmit(formValues => {
-                        res = { ...(val ?? {}), ...formValues }
-                    })()
-                    return res!
-                }}
-            />
+            <StepFooter />
         </Step>
     )
 }

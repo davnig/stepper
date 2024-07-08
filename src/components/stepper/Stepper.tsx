@@ -3,6 +3,7 @@ import { cn, FnChildren, renderFnChildren } from '@/utils/utils.ts'
 import { Button } from '@/components/ui/Button.tsx'
 import { Slot } from '@radix-ui/react-slot'
 import { Badge } from '@/components/ui/Badge.tsx'
+import { CaretLeft } from '@phosphor-icons/react'
 
 type StepperTransitionFn<V> = (value: V | undefined) => Promise<V | undefined>
 
@@ -28,6 +29,8 @@ type StepperEventHandlers<V> = {
 
 // =============== Context ===============
 
+// Stepper
+
 export type StepperContext<V> = StepperState<V> &
     StepperActions<V> & {
         titles?: string[]
@@ -39,6 +42,20 @@ export function useStepperContext<V>(): StepperContext<V> {
     const context = useContext(stepperContext)
     if (!context) {
         throw new Error('useStepperContext should be used within <Stepper>')
+    }
+    return context
+}
+
+// Step
+
+export type StepContext<V> = StepperContext<V> & StepperEventHandlers<V>
+
+const stepContext = createContext<StepContext<any> | undefined>(undefined)
+
+export function useStepContext<V>(): StepContext<V> {
+    const context = useContext(stepContext)
+    if (!context) {
+        throw new Error('useStepContext should be used within <Step>')
     }
     return context
 }
@@ -88,7 +105,7 @@ export function Stepper<V>({ steps, titles, initialValue, children, className, .
 
     return (
         <stepperContext.Provider value={context}>
-            <div className={cn('flex min-h-screen flex-col items-center overflow-auto p-8', className)}>
+            <div className={cn('flex min-h-screen flex-col items-center', className)}>
                 {renderFnChildren(children, context)}
             </div>
         </stepperContext.Provider>
@@ -97,31 +114,46 @@ export function Stepper<V>({ steps, titles, initialValue, children, className, .
 
 // =================== Step ===================
 
-export type StepProps = {
+export type StepProps<V> = StepperEventHandlers<V> & {
     children?: ReactNode
     className?: string
 }
 
-export function Step({ children, className }: StepProps) {
-    return <div className={cn('flex w-full flex-1 flex-col gap-4', className)}>{children}</div>
+export function Step<V>({ children, className, ...eventHandlers }: StepProps<V>) {
+    const stepperCtx = useStepperContext<V>()
+    return (
+        <stepContext.Provider value={{ ...stepperCtx, ...eventHandlers }}>
+            <div className={cn('relative flex w-full flex-1 flex-col', className)}>{children}</div>
+        </stepContext.Provider>
+    )
 }
 
 // =============== Step Header ===============
 
 export function StepHeader<V>() {
-    const { step: stepCtx, steps, titles } = useStepperContext<V>()
+    const { step: stepCtx, steps, titles, onBack, ...stepperCtx } = useStepContext<V>()
 
     const step = stepCtx ?? 0
 
     return (
-        <div className='text-foreground-sub items-center md:flex'>
+        <div className='text-foreground-sub sticky top-0 flex min-h-8 items-center bg-background p-8 md:h-auto'>
             {[...Array(steps)].map((_, i) => (
-                <div key={i} className='flex md:flex-1 md:flex-col md:gap-2 md:gap-x-0'>
+                <div
+                    key={i}
+                    className={cn(step !== i ? 'hidden md:flex' : 'flex', 'flex-1 md:flex-col md:gap-2 md:gap-x-0')}
+                >
+                    {/* Icon */}
+                    <CaretLeft
+                        className='h-4 w-4 flex-none self-center md:hidden'
+                        onClick={() => {
+                            stepperCtx.back?.(async () => onBack?.(stepperCtx.value))
+                        }}
+                    />
+
                     {/* Title */}
                     <div
                         className={cn(
-                            step !== i ? 'hidden' : 'flex-1 md:flex-none',
-                            'md:mt-3 md:flex md:items-center md:justify-center'
+                            'flex-1 pl-2 md:mt-3 md:flex md:flex-none md:items-center md:justify-center md:pl-0'
                         )}
                     >
                         <span className={cn('text-sm text-muted-foreground', step === i && 'md:text-primary')}>
@@ -130,11 +162,9 @@ export function StepHeader<V>() {
                     </div>
 
                     {/* Badge */}
-                    {step === i && (
-                        <Badge variant='secondary' className='md:hidden'>
-                            {`Step ${step + 1} of ${steps}`}
-                        </Badge>
-                    )}
+                    <Badge variant='secondary' className='md:hidden'>
+                        {`Step ${step + 1} of ${steps}`}
+                    </Badge>
 
                     {/* Indicator */}
                     <div className='hidden md:flex md:flex-1 md:items-center'>
@@ -186,30 +216,35 @@ export type StepContentProps = {
 
 export const StepContent = forwardRef(({ className, asChild, ...props }: StepContentProps, ref: Ref<any>) => {
     const Comp = asChild ? Slot : 'div'
-    return <Comp className={cn('flex-1', className)} ref={ref} {...props} />
+    return <Comp className={cn('flex-1 overflow-auto px-8 py-4', className)} ref={ref} {...props} />
 })
 
 // =============== Step Footer ===============
 
-export type StepFooterProps<V> = StepperEventHandlers<V> & {
+export type StepFooterProps = {
     className?: string
 }
 
-export function StepFooter<V>({ className, onNext, onBack, ...props }: StepFooterProps<V>) {
-    const { value, step, steps, ...stepper } = useStepperContext<V>()
+export function StepFooter<V>({ className, ...props }: StepFooterProps) {
+    const { value, step, steps, onBack, onNext, ...stepperCtx } = useStepContext<V>()
 
     return (
-        <div className={cn('md:flex md:items-center md:justify-between', className)}>
+        <div
+            className={cn(
+                'bg-background p-8 md:sticky md:bottom-0 md:flex md:items-center md:justify-between',
+                className
+            )}
+        >
             <Button
                 variant='secondary'
                 className='hidden md:inline-block'
                 onClick={() => {
-                    stepper.back?.(async () => onBack?.(value))
+                    stepperCtx.back?.(async () => onBack?.(value))
                 }}
             >
                 {step === 0 ? 'Cancel' : 'Back'}
             </Button>
-            <Button className='w-full md:w-auto' onClick={() => stepper.next?.(async () => onNext?.(value))}>
+            <Button className='w-full md:w-auto' onClick={() => stepperCtx.next?.(async () => onNext?.(value))}>
                 {step === steps - 1 ? 'Done' : 'Next'}
             </Button>
         </div>

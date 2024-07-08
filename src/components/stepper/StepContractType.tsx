@@ -42,7 +42,7 @@ export function StepContractType() {
     ]
 
     return (
-        <Step>
+        <Step onNext={async val => ({ ...(val ?? {}), contractType })}>
             <StepHeader />
             <StepContent className='flex flex-col items-center gap-4'>
                 <p className='self-center font-semibold'>What type of Contractor's contract you need?</p>
@@ -52,7 +52,7 @@ export function StepContractType() {
                             key={ix}
                             onClick={() => setContractType(card.value)}
                             className={cn(
-                                'w-52 cursor-pointer hover:shadow-md',
+                                'w-full cursor-pointer hover:shadow-md md:w-52',
                                 contractType === card.value && 'border border-primary'
                             )}
                         >
@@ -74,7 +74,7 @@ export function StepContractType() {
                 </div>
                 <JsonViewer>{stepperCtx.value}</JsonViewer>
             </StepContent>
-            <StepFooter onNext={async val => ({ ...(val ?? {}), contractType })} />
+            <StepFooter />
         </Step>
     )
 }
