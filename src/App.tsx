@@ -118,12 +118,12 @@ export function App() {
                 titles={['Contract type', 'Project details', 'Payment terms', 'Review']}
             >
                 {({ step }) => (
-                    <div className='flex flex-col items-center justify-between overflow-auto p-8'>
+                    <>
                         {step === STEPS.CONTRACT_TYPE && <StepContractType />}
                         {step === STEPS.PROJECT_DETAILS && <StepProjectDetails />}
                         {step === STEPS.CONTRACT_AMOUNT && <StepPaymentTerms />}
                         {step === STEPS.RESULT && <StepReview />}
-                    </div>
+                    </>
                 )}
             </Stepper>
         </IconContext.Provider>

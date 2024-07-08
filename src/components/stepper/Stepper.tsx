@@ -2,6 +2,7 @@ import { createContext, Dispatch, forwardRef, ReactNode, Ref, useContext, useMem
 import { cn, FnChildren, renderFnChildren } from '@/utils/utils.ts'
 import { Button } from '@/components/ui/Button.tsx'
 import { Slot } from '@radix-ui/react-slot'
+import { Badge } from '@/components/ui/Badge.tsx'
 
 type StepperTransitionFn<V> = (value: V | undefined) => Promise<V | undefined>
 
@@ -49,9 +50,10 @@ export type StepperProps<V> = {
     titles?: string[]
     initialValue?: V
     children?: FnChildren<StepperContext<V>>
+    className?: string
 }
 
-export function Stepper<V>({ steps, titles, initialValue, children, ...props }: StepperProps<V>) {
+export function Stepper<V>({ steps, titles, initialValue, children, className, ...props }: StepperProps<V>) {
     const [state, setState] = useState<StepperState<V>>({ value: initialValue, step: 0, steps })
 
     const actions: StepperActions<V> = useMemo(() => {
@@ -84,7 +86,13 @@ export function Stepper<V>({ steps, titles, initialValue, children, ...props }: 
         titles,
     }
 
-    return <stepperContext.Provider value={context}>{renderFnChildren(children, context)}</stepperContext.Provider>
+    return (
+        <stepperContext.Provider value={context}>
+            <div className={cn('flex min-h-screen flex-col items-center overflow-auto p-8', className)}>
+                {renderFnChildren(children, context)}
+            </div>
+        </stepperContext.Provider>
+    )
 }
 
 // =================== Step ===================
@@ -95,7 +103,7 @@ export type StepProps = {
 }
 
 export function Step({ children, className }: StepProps) {
-    return <div className={cn('flex h-full w-full flex-col gap-4', className)}>{children}</div>
+    return <div className={cn('flex w-full flex-1 flex-col gap-4', className)}>{children}</div>
 }
 
 // =============== Step Header ===============
@@ -106,19 +114,32 @@ export function StepHeader<V>() {
     const step = stepCtx ?? 0
 
     return (
-        <ul aria-label='Steps' className='text-foreground-sub items-center md:flex'>
+        <div className='text-foreground-sub items-center md:flex'>
             {[...Array(steps)].map((_, i) => (
-                <div key={i} className='flex gap-x-3 md:flex-1 md:flex-col-reverse md:gap-2 md:gap-x-0'>
+                <div key={i} className='flex md:flex-1 md:flex-col md:gap-2 md:gap-x-0'>
+                    {/* Title */}
+                    <div
+                        className={cn(
+                            step !== i ? 'hidden' : 'flex-1 md:flex-none',
+                            'md:mt-3 md:flex md:items-center md:justify-center'
+                        )}
+                    >
+                        <span className={cn('text-sm text-muted-foreground', step === i && 'md:text-primary')}>
+                            {titles?.[i]}
+                        </span>
+                    </div>
+
+                    {/* Badge */}
+                    {step === i && (
+                        <Badge variant='secondary' className='md:hidden'>
+                            {`Step ${step + 1} of ${steps}`}
+                        </Badge>
+                    )}
+
                     {/* Indicator */}
-                    <div className='flex flex-col items-center md:flex-1 md:flex-row'>
+                    <div className='hidden md:flex md:flex-1 md:items-center'>
                         {/* Left line */}
-                        <div
-                            className={cn(
-                                'hidden w-full border md:block',
-                                i == 0 && 'border-none',
-                                step >= i && 'border-primary'
-                            )}
-                        />
+                        <div className={cn('w-full border', i == 0 && 'border-none', step >= i && 'border-primary')} />
                         {/* Circle */}
                         <div
                             className={cn(
@@ -143,22 +164,15 @@ export function StepHeader<V>() {
                         {/* Right line */}
                         <div
                             className={cn(
-                                'h-12 border md:h-auto md:w-full',
+                                'w-full border',
                                 i + 1 === steps && 'border-none',
                                 step > i && 'border-primary'
                             )}
                         />
                     </div>
-
-                    {/* Title */}
-                    <div className='flex h-4 items-center justify-center md:mt-3 md:h-auto'>
-                        <span className={cn('text-sm text-muted-foreground', step === i && 'text-primary')}>
-                            {titles?.[i]}
-                        </span>
-                    </div>
                 </div>
             ))}
-        </ul>
+        </div>
     )
 }
 
@@ -185,16 +199,17 @@ export function StepFooter<V>({ className, onNext, onBack, ...props }: StepFoote
     const { value, step, steps, ...stepper } = useStepperContext<V>()
 
     return (
-        <div className={cn('flex items-center justify-between', className)}>
+        <div className={cn('md:flex md:items-center md:justify-between', className)}>
             <Button
                 variant='secondary'
+                className='hidden md:inline-block'
                 onClick={() => {
                     stepper.back?.(async () => onBack?.(value))
                 }}
             >
                 {step === 0 ? 'Cancel' : 'Back'}
             </Button>
-            <Button onClick={() => stepper.next?.(async () => onNext?.(value))}>
+            <Button className='w-full md:w-auto' onClick={() => stepper.next?.(async () => onNext?.(value))}>
                 {step === steps - 1 ? 'Done' : 'Next'}
             </Button>
         </div>
